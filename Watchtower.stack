@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Amsterdam                     # Pas aan naar jouw timezone
+      - WATCHTOWER_CLEANUP=true                 # Oude images verwijderen na update
+      - WATCHTOWER_INCLUDE_STOPPED=true         # Ook gestopte containers controleren
+      - WATCHTOWER_REVIVE_STOPPED=false         # Gestopte containers niet automatisch starten
+      - WATCHTOWER_SCHEDULE=0 0 2 * * *        # Cron-schema: elke dag om 02:00
+    command: >
+      homeassist pihole watchtower              # De containers die je wilt laten updaten
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
