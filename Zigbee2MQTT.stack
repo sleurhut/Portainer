@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  # =========================
+  # Mosquitto MQTT Broker
+  # =========================
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - /volume1/docker/mosquitto/config:/mosquitto/config:rw
+      - /volume1/docker/mosquitto/data:/mosquitto/data:rw
+      - /volume1/docker/mosquitto/log:/mosquitto/log:rw
+    environment:
+      - TZ=Europe/Amsterdam
+
+  # =========================
+  # Zigbee2MQTT
+  # =========================
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - /volume1/docker/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
+    environment:
+      - TZ=Europe/Amsterdam
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    privileged: true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
